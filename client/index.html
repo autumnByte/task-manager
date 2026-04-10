@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Task Manager</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #F1EFE8;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      color: #2C2C2A;
+    }
+
+    .app {
+      max-width: 620px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      padding: 1.75rem;
+      border: 0.5px solid #D3D1C7;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .header h2 {
+      font-size: 20px;
+      font-weight: 500;
+      color: #2C2C2A;
+    }
+
+    .stats {
+      display: flex;
+      gap: 8px;
+    }
+
+    .stat {
+      background: #F1EFE8;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 11px;
+      color: #5F5E5A;
+      text-align: center;
+    }
+
+    .stat span {
+      display: block;
+      font-size: 18px;
+      font-weight: 500;
+      color: #2C2C2A;
+      line-height: 1.2;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .task-input {
+      flex: 1;
+      padding: 10px 14px;
+      font-size: 14px;
+      border: 0.5px solid #B4B2A9;
+      border-radius: 8px;
+      background: #fff;
+      color: #2C2C2A;
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    .task-input:focus {
+      border-color: #7F77DD;
+      box-shadow: 0 0 0 3px rgba(127,119,221,.15);
+    }
+
+    .priority-sel {
+      padding: 10px;
+      font-size: 13px;
+      border: 0.5px solid #B4B2A9;
+      border-radius: 8px;
+      background: #fff;
+      color: #2C2C2A;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .btn-add {
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      background: #534AB7;
+      color: #EEEDFE;
+      border: none;
+      border-radius: 8px;
+      transition: background .15s, transform .1s;
+    }
+
+    .btn-add:hover { background: #7F77DD; }
+    .btn-add:active { transform: scale(.97); }
+
+    .filters {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-f {
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      background: #F1EFE8;
+      color: #5F5E5A;
+      border: 0.5px solid #B4B2A9;
+      border-radius: 100px;
+      transition: all .15s;
+    }
+
+    .btn-f:hover, .btn-f.on {
+      background: #EEEDFE;
+      color: #3C3489;
+      border-color: #AFA9EC;
+    }
+
+    .progress-bar {
+      background: #F1EFE8;
+      border-radius: 100px;
+      height: 6px;
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #534AB7;
+      border-radius: 100px;
+      transition: width .4s cubic-bezier(.4,0,.2,1);
+    }
+
+    #status {
+      font-size: 13px;
+      color: #888780;
+      margin-bottom: .75rem;
+      min-height: 16px;
+      text-align: center;
+    }
+
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      background: #fff;
+      border: 0.5px solid #D3D1C7;
+      border-radius: 12px;
+      transition: border-color .15s, transform .2s, opacity .3s;
+    }
+
+    .task-item:hover { border-color: #B4B2A9; }
+    .task-item.removing { transform: translateX(40px); opacity: 0; }
+    .task-item.adding { animation: slideIn .25s ease; }
+
+    @keyframes slideIn {
+      from { transform: translateY(-10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .priority-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .p-high .priority-dot { background: #E24B4A; }
+    .p-med  .priority-dot { background: #EF9F27; }
+    .p-low  .priority-dot { background: #1D9E75; }
+
+    .task-text {
+      flex: 1;
+      font-size: 14px;
+      color: #2C2C2A;
+      transition: color .2s;
+    }
+
+    .task-item.done .task-text {
+      text-decoration: line-through;
+      color: #888780;
+    }
+
+    .task-badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 100px;
+      font-weight: 500;
+    }
+
+    .badge-high { background: #FCEBEB; color: #A32D2D; }
+    .badge-med  { background: #FAEEDA; color: #633806; }
+    .badge-low  { background: #E1F5EE; color: #085041; }
+
+    .btn-check {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1.5px solid #B4B2A9;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all .15s;
+      position: relative;
+    }
+
+    .btn-check:hover { border-color: #534AB7; background: #EEEDFE; }
+    .task-item.done .btn-check { background: #534AB7; border-color: #534AB7; }
+
+    .check-icon { display: none; }
+    .task-item.done .check-icon { display: block; }
+
+    .check-svg { width: 12px; height: 12px; }
+
+    .btn-del {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 0.5px solid #D3D1C7;
+      background: transparent;
+      cursor: pointer;
+      font-size: 14px;
+      color: #888780;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .15s;
+      flex-shrink: 0;
+    }
+
+    .btn-del:hover { background: #FCEBEB; color: #A32D2D; border-color: #F09595; }
+
+    .empty {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: #888780;
+      font-size: 14px;
+    }
+
+    .empty-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #F1EFE8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+    }
+
+    .clear-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: .5rem;
+    }
+
+    .btn-clear {
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      background: transparent;
+      color: #888780;
+      border: 0.5px solid #D3D1C7;
+      border-radius: 8px;
+      transition: all .15s;
+    }
+
+    .btn-clear:hover { color: #A32D2D; border-color: #F09595; background: #FCEBEB; }
+
+    .confetti-wrap {
+      position: relative;
+      height: 0;
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    .dot {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <h2>Task Manager</h2>
+    <div class="stats">
+      <div class="stat"><span id="s-total">0</span>total</div>
+      <div class="stat"><span id="s-done">0</span>done</div>
+      <div class="stat"><span id="s-pct">0%</span>progress</div>
+    </div>
+  </div>
+
+  <div class="input-row">
+    <input class="task-input" id="taskInput" type="text" placeholder="What needs to be done?" />
+    <select class="priority-sel" id="prioSel">
+      <option value="high">High</option>
+      <option value="med" selected>Med</option>
+      <option value="low">Low</option>
+    </select>
+    <button class="btn-add" id="addBtn">Add</button>
+  </div>
+
+  <div class="filters">
+    <button class="btn-f on" data-f="all">All</button>
+    <button class="btn-f" data-f="pending">Pending</button>
+    <button class="btn-f" data-f="completed">Completed</button>
+    <button class="btn-f" data-f="high">High priority</button>
+    <button class="btn-f" data-f="med">Medium</button>
+    <button class="btn-f" data-f="low">Low</button>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+
+  <p id="status"></p>
+
+  <div class="clear-row">
+    <button class="btn-clear" id="clearDone">Clear completed</button>
+  </div>
+
+  <div class="confetti-wrap" id="confetti"></div>
+  <div class="task-list" id="taskList"></div>
+</div>
+
+<script>
+  const API = "http://localhost:5000/tasks";
+  let tasks = [];
+  let filter = "all";
+  let useAPI = true;
+
+  const taskList = document.getElementById("taskList");
+  const status   = document.getElementById("status");
+  const progFill = document.getElementById("progFill");
+  const confettiWrap = document.getElementById("confetti");
+
+  const COLORS = ["#534AB7","#1D9E75","#D4537E","#EF9F27","#378ADD","#D85A30"];
+
+  function uid() { return Math.random().toString(36).slice(2, 9); }
+
+  function shoot() {
+    for (let i = 0; i < 18; i++) {
+      const d = document.createElement("div");
+      d.className = "dot";
+      d.style.cssText = `background:${COLORS[i % COLORS.length]};left:${30 + Math.random() * 40}%;top:0`;
+      confettiWrap.appendChild(d);
+      const tx = (Math.random() - 0.5) * 120;
+      const ty = -(40 + Math.random() * 80);
+      d.animate([
+        { opacity: 1, transform: "translate(0,0) scale(1)" },
+        { opacity: 0, transform: `translate(${tx}px,${ty}px) scale(0)` }
+      ], { duration: 700 + Math.random() * 400, easing: "cubic-bezier(.2,.8,.4,1)" })
+        .onfinish = () => d.remove();
+    }
+  }
+
+  function updateStats() {
+    const total = tasks.length;
+    const done  = tasks.filter(t => t.completed).length;
+    const pct   = total ? Math.round(done / total * 100) : 0;
+    document.getElementById("s-total").textContent = total;
+    document.getElementById("s-done").textContent  = done;
+    document.getElementById("s-pct").textContent   = pct + "%";
+    progFill.style.width = pct + "%";
+  }
+
+  function getFiltered() {
+    if (filter === "all")       return tasks;
+    if (filter === "pending")   return tasks.filter(t => !t.completed);
+    if (filter === "completed") return tasks.filter(t =>  t.completed);
+    return tasks.filter(t => t.priority === filter);
+  }
+
+  function render() {
+    const list = getFiltered();
+    updateStats();
+
+    if (!list.length) {
+      taskList.innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <rect x="2" y="2" width="14" height="14" rx="3" stroke="#B4B2A9" stroke-width="1.2"/>
+              <path d="M6 9l2 2 4-4" stroke="#B4B2A9" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          No tasks here
+        </div>`;
+      status.textContent = "";
+      return;
+    }
+
+    status.textContent = "";
+
+    const existing = {};
+    taskList.querySelectorAll(".task-item[data-id]").forEach(el => existing[el.dataset.id] = el);
+    const ids = new Set(list.map(t => t.id));
+    Object.keys(existing).forEach(id => { if (!ids.has(id)) existing[id].remove(); });
+
+    list.forEach(t => {
+      let el = existing[t.id];
+      if (!el) {
+        el = document.createElement("div");
+        el.className = "task-item p-" + t.priority + (t.completed ? " done" : "") + " adding";
+        el.dataset.id = t.id;
+        el.innerHTML = `
+          <button class="btn-check" title="Toggle">
+            <span class="check-icon">
+              <svg class="check-svg" viewBox="0 0 12 12" fill="none">
+                <path d="M2 6l3 3 5-5" stroke="#EEEDFE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </button>
+          <div class="priority-dot"></div>
+          <span class="task-text"></span>
+          <span class="task-badge"></span>
+          <button class="btn-del" title="Delete">&#x2715;</button>
+        `;
+        el.querySelector(".btn-check").onclick = () => toggleTask(t.id);
+        el.querySelector(".btn-del").onclick   = () => deleteTask(t.id);
+        taskList.appendChild(el);
+      } else {
+        el.className = "task-item p-" + t.priority + (t.completed ? " done" : "");
+      }
+      el.querySelector(".task-text").textContent = t.title;
+      const badge = el.querySelector(".task-badge");
+      badge.textContent  = t.priority;
+      badge.className    = "task-badge badge-" + t.priority;
+    });
+  }
+
+  async function loadTasks() {
+    if (!useAPI) { render(); return; }
+    status.textContent = "Loading…";
+    try {
+      const res  = await fetch(API);
+      tasks = await res.json();
+      render();
+    } catch {
+      status.textContent = "API offline — using local mode";
+      useAPI = false;
+      render();
+    }
+  }
+
+  async function addTask(title, priority) {
+    if (!title.trim()) return;
+    const task = { id: uid(), title: title.trim(), priority, completed: false };
+    if (useAPI) {
+      try {
+        const res = await fetch(API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, priority })
+        });
+        const t = await res.json();
+        tasks.unshift(t);
+      } catch { tasks.unshift(task); }
+    } else {
+      tasks.unshift(task);
+    }
+    render();
+  }
+
+  async function toggleTask(id) {
+    const t = tasks.find(x => x.id === id);
+    if (!t) return;
+    const completing = !t.completed;
+    t.completed = completing;
+    if (useAPI) { try { await fetch(`${API}/${id}`, { method: "PATCH" }); } catch {} }
+    render();
+    if (completing) shoot();
+  }
+
+  async function deleteTask(id) {
+    const el = taskList.querySelector(`[data-id="${id}"]`);
+    if (el) {
+      el.classList.add("removing");
+      await new Promise(r => setTimeout(r, 200));
+    }
+    tasks = tasks.filter(t => t.id !== id);
+    if (useAPI) { try { await fetch(`${API}/${id}`, { method: "DELETE" }); } catch {} }
+    render();
+  }
+
+  document.getElementById("addBtn").onclick = () => {
+    const inp  = document.getElementById("taskInput");
+    const prio = document.getElementById("prioSel").value;
+    addTask(inp.value, prio);
+    inp.value = "";
+    inp.focus();
+  };
+
+  document.getElementById("taskInput").addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      const prio = document.getElementById("prioSel").value;
+      addTask(e.target.value, prio);
+      e.target.value = "";
+    }
+  });
+
+  document.querySelectorAll(".btn-f").forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll(".btn-f").forEach(b => b.classList.remove("on"));
+      btn.classList.add("on");
+      filter = btn.dataset.f;
+      render();
+    };
+  });
+
+  document.getElementById("clearDone").onclick = () => {
+    tasks = tasks.filter(t => !t.completed);
+    render();
+  };
+
+  loadTasks().catch(() => {
+    useAPI = false;
+    tasks = [
+      { id: uid(), title: "Design new landing page layout", priority: "high", completed: false },
+      { id: uid(), title: "Fix auth bug in login flow",     priority: "high", completed: true  },
+      { id: uid(), title: "Write unit tests for API",       priority: "med",  completed: false },
+      { id: uid(), title: "Update README documentation",    priority: "low",  completed: false },
+      { id: uid(), title: "Review pull requests",           priority: "med",  completed: true  },
+    ];
+    render();
+  });
+</script>
+</body>
+</html>
