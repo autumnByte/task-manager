@@ -23,24 +23,17 @@ This is a simple full-stack Task Manager application that allows users to create
 - `DELETE /tasks/:id` → Delete task  
 
 ## Setup Instructions
-
-### 1. Clone the repository
-
+```
+1. Clone the repository
 git clone https://github.com/autumnByte/task-manager.git
-
 cd task-manager
-
-
-### 2. Start Backend
-
+2. Start Backend
 cd server
 npm install
 node index.js
-
-
-### 3. Run Frontend
+3. Run Frontend
 Open `client/index.html` in your browser.
-
+```
 ## Notes
 - Data is stored in-memory (resets when server restarts)
 - Focus was on functionality, API design, and clean UI
