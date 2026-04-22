@@ -1,75 +1,127 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const { v4: uuidv4 } = require("uuid");
+
+const db = require("./db");
+const auth = require("./middleware/auth");
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-let tasks = [];
+// AUTH ROUTES
+app.use("/auth", require("./routes/auth"));
 
-// GET all tasks
-app.get("/tasks", (req, res) => {
-  res.json(tasks);
+/* ===========================
+   TASK ROUTES (PROTECTED)
+=========================== */
+
+// GET all tasks (user-specific)
+app.get("/tasks", auth, (req, res) => {
+  console.log("USER:", req.user);
+  db.query(
+    "SELECT * FROM tasks WHERE user_id = ?",
+    [req.user.id],
+    (err, results) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "DB error" });
+      }
+      res.json(results);
+    },
+  );
 });
 
 // CREATE task
-app.post("/tasks", (req, res) => {
-  const { title, priority } = req.body;
+app.post("/tasks", auth, (req, res) => {
+  const { title, priority, due, notes } = req.body;
 
   if (!title || !title.trim()) {
     return res.status(400).json({ error: "Title is required" });
   }
 
-  const newTask = {
-    id: uuidv4(),
-    title: title.trim(),
-    priority: priority || "med", // ✅ FIX: support priority
-    completed: false,
-    createdAt: new Date().toISOString(),
-  };
+  db.query(
+    `INSERT INTO tasks (title, priority, due, notes, completed, user_id)
+     VALUES (?, ?, ?, ?, false, ?)`,
+    [title.trim(), priority || "med", due || null, notes || "", req.user.id],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "DB error" });
+      }
 
-  tasks.push(newTask);
-  res.status(201).json(newTask);
+      res.status(201).json({
+        id: result.insertId,
+        title,
+        priority,
+        due,
+        notes,
+        completed: false,
+      });
+    },
+  );
 });
 
-// UPDATE task (toggle + optional title/priority update)
-app.patch("/tasks/:id", (req, res) => {
+// UPDATE task (toggle + edit)
+app.patch("/tasks/:id", auth, (req, res) => {
   const { id } = req.params;
-  const { title, priority } = req.body;
+  const { title, priority, due, notes, completed } = req.body || {};
 
-  const task = tasks.find(t => t.id === id);
+  // First get current task
+  db.query(
+    "SELECT * FROM tasks WHERE id = ? AND user_id = ?",
+    [id, req.user.id],
+    (err, results) => {
+      if (err) return res.status(500).json({ error: "DB error" });
+      if (results.length === 0)
+        return res.status(404).json({ error: "Task not found" });
 
-  if (!task) {
-    return res.status(404).json({ error: "Task not found" });
-  }
+      const task = results[0];
 
-  // Toggle completion
-  task.completed = !task.completed;
+      const newCompleted =
+        completed !== undefined ? completed : !task.completed;
 
-  // Optional updates
-  if (title !== undefined && title.trim() !== "") {
-    task.title = title.trim();
-  }
+      db.query(
+        `UPDATE tasks 
+         SET title = ?, priority = ?, due = ?, notes = ?, completed = ?
+         WHERE id = ? AND user_id = ?`,
+        [
+          title ?? task.title,
+          priority ?? task.priority,
+          due ?? task.due,
+          notes ?? task.notes,
+          newCompleted,
+          id,
+          req.user.id,
+        ],
+        (err2) => {
+          if (err2) return res.status(500).json({ error: "DB error" });
 
-  if (priority !== undefined) {
-    task.priority = priority;
-  }
-
-  res.json(task);
+          res.json({ message: "Task updated" });
+        },
+      );
+    },
+  );
 });
 
 // DELETE task
-app.delete("/tasks/:id", (req, res) => {
+app.delete("/tasks/:id", auth, (req, res) => {
   const { id } = req.params;
 
-  const exists = tasks.some(t => t.id === id);
-  if (!exists) {
-    return res.status(404).json({ error: "Task not found" });
-  }
+  db.query(
+    "DELETE FROM tasks WHERE id = ? AND user_id = ?",
+    [id, req.user.id],
+    (err, result) => {
+      if (err) return res.status(500).json({ error: "DB error" });
 
-  tasks = tasks.filter(t => t.id !== id);
-  res.json({ message: "Deleted successfully" });
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: "Task not found" });
+      }
+
+      res.json({ message: "Deleted successfully" });
+    },
+  );
 });
 
 app.listen(5000, () => console.log("Server running on port 5000"));
