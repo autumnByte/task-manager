@@ -1,39 +1,74 @@
-# Task Manager App
+# 🌸 Darling Do — Task Manager
 
-## Overview
-This is a simple full-stack Task Manager application that allows users to create, view, update, and delete tasks. The project demonstrates core frontend-backend integration using a REST API.
+A simple full-stack task manager app with authentication, task tracking, and productivity insights.
 
-## Features
-- Add new tasks
+## 🚀 Live Links
+
+- Frontend: https://your-vercel-url.vercel.app
+- Backend: https://task-manager-ozpn.onrender.com
+
+## ✨ Features
+
+- User signup & login (JWT auth)
+- Add / delete / update tasks
 - Mark tasks as completed
-- Delete tasks
-- Filter tasks (All / Completed / Pending)
-- Priority levels (High / Medium / Low)
-- Progress tracking with visual indicators
-- Graceful fallback to local mode if backend is unavailable
+- Priority levels (high / medium / low)
+- Weekly productivity chart
+- Streak tracking
+- Notes and due dates
 
-## Tech Stack
-- **Frontend:** HTML, CSS, JavaScript  
-- **Backend:** Node.js, Express  
+## 🛠 Tech Stack
 
-## API Endpoints
-- `GET /tasks` → Fetch all tasks  
-- `POST /tasks` → Create a new task  
-- `PATCH /tasks/:id` → Update task (toggle / edit)  
-- `DELETE /tasks/:id` → Delete task  
+- Frontend: HTML, CSS, JavaScript
+- Backend: Node.js, Express
+- Database: MySQL (Railway)
+- Deployment:
+  - Frontend → Vercel
+  - Backend → Render
 
-## Setup Instructions
-```
-1. Clone the repository
-git clone https://github.com/autumnByte/task-manager.git
+## ⚙️ Setup (Local)
+
+### 1. Clone repo
+
+git clone https://github.com/your-username/task-manager.git
+
 cd task-manager
-2. Start Backend
+
+
+### 2. Backend setup
+
 cd server
 npm install
+
+
+Create `.env`:
+
+JWT_SECRET=your_secret_key
+MYSQL_URL=your_mysql_connection_string
+
+
+Run server:
+
 node index.js
-3. Run Frontend
-Open `client/index.html` in your browser.
-```
-## Notes
-- Data is stored in-memory (resets when server restarts)
-- Focus was on functionality, API design, and clean UI
+
+
+### 3. Frontend
+Open `client/index.html` with Live Server
+
+## 📌 API Endpoints
+
+- POST `/auth/signup`
+- POST `/auth/login`
+- GET `/tasks`
+- POST `/tasks`
+- PATCH `/tasks/:id`
+- DELETE `/tasks/:id`
+
+## 🧠 Notes
+
+- Make sure backend URL is updated in frontend before deployment
+- CORS must be enabled on backend
+
+---
+
+Made with ❤️
