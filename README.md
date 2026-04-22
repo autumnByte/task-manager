@@ -64,5 +64,6 @@
 · ✦ · ✿ · ✦ · ✿ · ✦ · ✿ · ✦ ·
 
 *made with ♡ and a sprinkle of stardust*
+*all rights reserved to SUHANI DWIVEDI*
 
 </div>
