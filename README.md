@@ -1,74 +1,68 @@
-# 🌸 Darling Do — Task Manager
+<div align="center">
 
-A simple full-stack task manager app with authentication, task tracking, and productivity insights.
+# 🎀 Darling Do — Task Manager
 
-## 🚀 Live Links
+*a delicate little task manager, made with love ˚ ༘ ♡*
 
-- Frontend: https://your-vercel-url.vercel.app
-- Backend: https://task-manager-ozpn.onrender.com
+![](https://img.shields.io/badge/-%F0%9F%8C%B8%20live%20%26%20blooming-f7d6e0?style=for-the-badge)
 
-## ✨ Features
+### ✨ [darling-do.vercel.app](https://darling-do.vercel.app/)
 
-- User signup & login (JWT auth)
-- Add / delete / update tasks
-- Mark tasks as completed
-- Priority levels (high / medium / low)
-- Weekly productivity chart
-- Streak tracking
-- Notes and due dates
-
-## 🛠 Tech Stack
-
-- Frontend: HTML, CSS, JavaScript
-- Backend: Node.js, Express
-- Database: MySQL (Railway)
-- Deployment:
-  - Frontend → Vercel
-  - Backend → Render
-
-## ⚙️ Setup (Local)
-
-### 1. Clone repo
-
-git clone https://github.com/your-username/task-manager.git
-
-cd task-manager
-
-
-### 2. Backend setup
-
-cd server
-npm install
-
-
-Create `.env`:
-
-JWT_SECRET=your_secret_key
-MYSQL_URL=your_mysql_connection_string
-
-
-Run server:
-
-node index.js
-
-
-### 3. Frontend
-Open `client/index.html` with Live Server
-
-## 📌 API Endpoints
-
-- POST `/auth/signup`
-- POST `/auth/login`
-- GET `/tasks`
-- POST `/tasks`
-- PATCH `/tasks/:id`
-- DELETE `/tasks/:id`
-
-## 🧠 Notes
-
-- Make sure backend URL is updated in frontend before deployment
-- CORS must be enabled on backend
+</div>
 
 ---
 
-Made with ❤️
+<div align="center">
+· ✦ · ✿ · ✦ · ✿ · ✦ · ✿ · ✦ ·
+</div>
+
+---
+
+## 🌸 little wonders
+
+- 🔐 User signup & login *(JWT auth)*
+- ✍️ Add, delete & update tasks
+- 🎀 Mark tasks as completed
+- 🌷 Priority levels — high, medium, low
+- 📊 Weekly productivity chart
+- 🔥 Streak tracking
+- 🗒️ Notes & due dates
+
+---
+
+## 🪄 built with fairy dust &
+
+| ✦ | stack |
+|---|-------|
+| 🌸 **Frontend** | HTML · CSS · JavaScript |
+| 🪷 **Backend** | Node.js · Express |
+| 🫧 **Database** | MySQL *(Railway)* |
+| ☁️ **Frontend Deploy** | Vercel |
+| 🌙 **Backend Deploy** | Render |
+
+---
+
+## 🌷 secret garden of endpoints
+- 🩷  POST    /auth/signup
+- 🩷  POST    /auth/login
+- 🩵  GET     /tasks
+- 🩷  POST    /tasks
+- 💜  PATCH   /tasks/:id
+- 🤍  DELETE  /tasks/:id
+
+---
+
+## 🪷 gentle reminders
+
+- 🌸 Make sure the backend URL is updated in the frontend before deployment
+- 🌸 CORS must be enabled on the backend, darling
+
+---
+
+<div align="center">
+
+· ✦ · ✿ · ✦ · ✿ · ✦ · ✿ · ✦ ·
+
+*made with ♡ and a sprinkle of stardust*
+
+</div>
