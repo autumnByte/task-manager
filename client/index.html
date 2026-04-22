@@ -1976,11 +1976,14 @@
         }
 
         try {
-          const res = await fetch("http://localhost:5000/auth/signup", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password, name }),
-          });
+          const res = await fetch(
+            "https://task-manager-ozpn.onrender.com/auth/signup",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, password, name }),
+            },
+          );
           const data = await res.json();
           if (res.ok) {
             msg.textContent = "✿ account created! signing you in…";
@@ -2005,11 +2008,14 @@
         }
 
         try {
-          const res = await fetch("http://localhost:5000/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password }),
-          });
+          const res = await fetch(
+            "https://task-manager-ozpn.onrender.com/auth/login",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, password }),
+            },
+          );
           const data = await res.json();
           if (data.token) {
             token = data.token;
@@ -2044,9 +2050,12 @@
       async function loadTasks() {
         if (!token) return;
         try {
-          const res = await fetch("http://localhost:5000/tasks", {
-            headers: { Authorization: token },
-          });
+          const res = await fetch(
+            "https://task-manager-ozpn.onrender.com/tasks",
+            {
+              headers: { Authorization: token },
+            },
+          );
           const data = await res.json();
           if (!res.ok) {
             console.error(data);
@@ -2188,7 +2197,7 @@
         }
         const prio = document.getElementById("new-task-prio").value;
         const due = document.getElementById("new-task-due").value;
-        await fetch("http://localhost:5000/tasks", {
+        await fetch("https://task-manager-ozpn.onrender.com/tasks", {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: token },
           body: JSON.stringify({ title, priority: prio, due }),
@@ -2199,7 +2208,7 @@
       }
 
       async function toggleTask(id) {
-        await fetch(`http://localhost:5000/tasks/${id}`, {
+        await fetch(`https://task-manager-ozpn.onrender.com/tasks/${id}`, {
           method: "PATCH",
           headers: { Authorization: token },
         });
@@ -2207,7 +2216,7 @@
       }
 
       async function deleteTask(id) {
-        await fetch(`http://localhost:5000/tasks/${id}`, {
+        await fetch(`https://task-manager-ozpn.onrender.com/tasks/${id}`, {
           method: "DELETE",
           headers: { Authorization: token },
         });
@@ -2239,11 +2248,17 @@
         const priority = document.getElementById("edit-priority").value;
         const due = document.getElementById("edit-due").value;
         const notes = document.getElementById("edit-notes").value;
-        await fetch(`http://localhost:5000/tasks/${editingId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json", Authorization: token },
-          body: JSON.stringify({ title, priority, due, notes }),
-        });
+        await fetch(
+          `https://task-manager-ozpn.onrender.com/tasks/${editingId}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token,
+            },
+            body: JSON.stringify({ title, priority, due, notes }),
+          },
+        );
         closeEditModal();
         loadTasks();
         toast("✿ task updated!");
